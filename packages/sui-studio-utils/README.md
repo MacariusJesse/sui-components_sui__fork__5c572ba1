@@ -75,6 +75,48 @@ domain.get('current_user_use_case').execute().then((products) => {
 })
 ```
 
+### Using Sinon spies for testing
+
+> You can use Sinon spies to test that your use cases are being called correctly and verify their behavior. This is particularly useful when you want to mock a response while also tracking how the function was called.
+
+```js
+import { DomainBuilder } from '@s-ui/studio-tools'
+import sinon from 'sinon'
+import myDomain from 'domain'
+
+// Create a spy that returns a specific response
+const spy = sinon.spy(() => {
+  return 'spied-response'
+})
+
+// Build the domain with the spied use case
+const domain = DomainBuilder
+  .extend({ domain: myDomain })
+  .for({ useCase: 'get_products' })
+  .respondWith({ success: spy })
+  .build()
+
+// Execute the use case
+domain.get('get_products').execute().then((result) => {
+  console.log(result) // 'spied-response'
+  
+  // Verify the spy was called
+  sinon.assert.calledOnce(spy)
+  
+  // You can also check call arguments, call count, etc.
+  console.log(spy.callCount) // 1
+  console.log(spy.firstCall.args) // Arguments passed to the spy
+})
+```
+
+This approach allows you to:
+- Track how many times a use case was called
+- Verify the arguments passed to the use case
+- Assert on the call order when multiple use cases are involved
+- Combine mocking with behavior verification in your tests
+
+For a complete example, see the [test implementation](https://github.com/SUI-Components/sui/blob/main/packages/sui-studio-utils/src/test/common/domainBuilderSpec.js).
+
 
 
 > THINGS TO KEEP IN MIND: 
